@@ -5,7 +5,6 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"strconv"
 )
 
 func main() {
@@ -28,15 +27,26 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "you wrote: "+update.Message.Text+"\nyou chatID:"+strconv.FormatInt(update.Message.Chat.ID, 10))
-			//msg.ReplyToMessageID = update.Message.MessageID
+			switch update.Message.Command() {
 
-			_, err := bot.Send(msg)
-			if err != nil {
-				return
+			case "help":
+				helpCommand(bot, update.Message)
+			default:
+				defaultBehavior(bot, update.Message)
 			}
+
 		}
 	}
+}
+
+func helpCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "/help - help")
+	bot.Send(msg)
+}
+
+func defaultBehavior(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
+	log.Printf("Authorized on account %s", bot.Self.UserName)
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "You wrote: "+inputMessage.Text)
+	bot.Send(msg)
 }
