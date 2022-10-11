@@ -10,3 +10,7 @@ func (c *Commander) Default(inputMessage *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "You wrote: "+inputMessage.Text)
 	c.bot.Send(msg)
 }
+
+func init() {
+	registeredCommands["default"] = (*Commander).Default
+}
